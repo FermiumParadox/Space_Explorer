@@ -24,10 +24,6 @@ A Flask-based web application that visualizes real-time space data using NASA AP
 
 ## 📸 Screenshots
 
-### 🏠 Homepage
-
-![Homepage](static/screenshots/homepage.png)
-
 ### 🌌 APOD Page
 
 ![APOD](static/screenshots/APOD_page.png)
