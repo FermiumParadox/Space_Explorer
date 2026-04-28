@@ -115,6 +115,5 @@ def news():
     data = requests.get(url).json()
     return render_template("news.html", articles=data.get("results", []))
 
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
