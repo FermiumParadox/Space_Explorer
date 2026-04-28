@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Mission Control{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+
+  <a href="/" class="back-link">Back to Mission Control</a>
+
+  <div class="page-header">
+    <div class="label">Surface Operations</div>
+    <h1>Mars Rover <span>Photos</span></h1>
+    <p class="subtitle">
+      Imagery captured by NASA's Mars rovers — select a rover and Martian solar day (sol).
+    </p>
+  </div>
+
+  <!-- Stats -->
+  {% if manifest %}
+  <div class="stat-grid fade-up">
+    <div class="card">
+      <div class="card-label">Rover</div>
+      <div class="card-value" style="font-size:22px">{{ manifest.name }}</div>
+      <div class="card-unit">{{ manifest.status }}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Photos</div>
+      <div class="card-value">{{ "{:,}".format(manifest.total_photos) }}</div>
+      <div class="card-unit">images captured</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Max Sol</div>
+      <div class="card-value">{{ manifest.max_sol }}</div>
+      <div class="card-unit">Martian days</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Landing Date</div>
+      <div class="card-value" style="font-size:18px">{{ manifest.landing_date }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Controls -->
+  <form class="control-bar fade-up fade-up-1" method="get" id="rover-form">
+    <div class="field">
+      <label>Rover</label>
+      <select id="rover-sel" name="rover">
+        {% for r in rovers %}
+        <option value="{{ r }}" {% if r == rover %}selected{% endif %}>{{ r|title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label>Sol (Martian Day)</label>
+      <input type="number" id="sol-input" name="sol" value="{{ sol }}" min="0" placeholder="e.g. 1000">
+    </div>
+    <button type="submit" class="btn btn-primary" onclick="submitForm()">Load Photos</button>
+    <button type="button" class="btn" onclick="randomSol()">Random Sol</button>
+  </form>
+
+  <!-- Results -->
+  {% if photos %}
+  <p style="font-family: var(--font-mono); font-size:11px; color:var(--text-dim); margin-bottom:20px; letter-spacing:1px;">
+    SHOWING {{ photos|length }} PHOTOS · SOL {{ sol }} · {{ rover|upper }}
+  </p>
+
+  <div class="photo-grid fade-up fade-up-2" id="photo-grid">
+    {% for photo in photos %}
+    <div class="photo-card" onclick="openLightbox('{{ photo.img_src }}')">
+      <img src="{{ photo.img_src }}" alt="Mars photo {{ photo.id }}" loading="lazy">
+      <div class="photo-card-meta">
+        <span class="camera">{{ photo.camera.full_name }}</span>
+        <span class="id">#{{ photo.id }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card" style="text-align:center; padding:60px;">
+    <div style="font-size:40px; margin-bottom:16px;">🔭</div>
+    <div style="font-family:var(--font-display); color:var(--text-dim);">No photos found for sol {{ sol }}</div>
+    <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint); margin-top:8px;">Try a different sol value</div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="Mars photo">
+  </div>
+</div>
+
+<script>
+  function submitForm() {
+    const rover = document.getElementById('rover-sel').value;
+    const sol   = document.getElementById('sol-input').value;
+    window.location.href = `/mars/${rover}/${sol}`;
+    return false;
+  }
+
+  document.getElementById('rover-form').addEventListener('submit', e => {
+    e.preventDefault(); submitForm();
+  });
+
+  function randomSol() {
+    const max = {{ manifest.max_sol if manifest else 3000 }};
+    document.getElementById('sol-input').value = Math.floor(Math.random() * max);
+    submitForm();
+  }
+
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox(e) {
+    if (!e || e.target !== document.getElementById('lightbox-img')) {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+{% endblock %}

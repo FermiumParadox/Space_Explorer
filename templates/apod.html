@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Mission Control{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+
+    <a href="/" class="back-link">Back to Mission Control</a>
+
+    <!-- Controls -->
+    <div class="control-bar fade-up">
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="apod-date"
+                   value="{{ data.date }}"
+                   min="1995-06-16"
+                   max="{{ now.strftime('%Y-%m-%d') if now else '' }}">
+        </div>
+        <button class="btn btn-primary" onclick="loadDate()">Load</button>
+        <button class="btn" onclick="loadRandom()">Random</button>
+        {% if data.hdurl %}
+        <a href="{{ data.hdurl }}" class="btn" target="_blank" style="margin-left:auto">↗ HD Image</a>
+        {% endif %}
+    </div>
+
+    <!-- Hero -->
+    <div class="apod-hero fade-up fade-up-1">
+
+        <div class="apod-image-wrap">
+            {% if data.media_type == 'video' %}
+            <iframe src="{{ data.url }}" width="100%" height="400"
+                    style="border:none; display:block;" allowfullscreen></iframe>
+            {% else %}
+            <img src="{{ data.url }}" alt="{{ data.title }}" loading="lazy">
+            {% endif %}
+        </div>
+
+        <div class="apod-meta">
+            <div>
+                <div class="apod-date">{{ data.date }}</div>
+                <h1 class="apod-title">{{ data.title }}</h1>
+                {% if data.copyright %}
+                <div class="apod-copyright" style="margin-top:8px">© {{ data.copyright }}</div>
+                {% endif %}
+            </div>
+
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div style="padding:16px 20px; border-bottom:1px solid var(--border);">
+                    <div class="card-label">Explanation</div>
+                </div>
+                <p class="apod-explanation" style="padding:16px 20px;">{{ data.explanation }}</p>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn" onclick="shareApod()">⎘ Share</button>
+                <a href="https://apod.nasa.gov/apod/" class="btn" target="_blank">NASA APOD ↗</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function loadDate() {
+      const d = document.getElementById('apod-date').value;
+      if (d) window.location.href = '/apod/' + d;
+    }
+
+    function loadRandom() {
+      const start = new Date('1995-06-16');
+      const end   = new Date();
+      const rnd   = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+      const iso   = rnd.toISOString().split('T')[0];
+      window.location.href = '/apod/' + iso;
+    }
+
+    function shareApod() {
+      if (navigator.share) {
+        navigator.share({ title: '{{ data.title }}', url: window.location.href });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied!');
+      }
+    }
+
+    document.getElementById('apod-date').addEventListener('keydown', e => {
+      if (e.key === 'Enter') loadDate();
+    });
+</script>
+{% endblock %}

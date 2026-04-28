@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Mission Control{% endblock %}
+
+{% block content %}
+
+<div class="hero">
+    <p class="hero-eyebrow fade-up">Mission Control · Live Data</p>
+
+    <h1 class="hero-title fade-up fade-up-1">
+        EXPLORE<br>
+        <span class="accent">THE</span><br>
+        COSMOS
+    </h1>
+
+    <p class="hero-sub fade-up fade-up-2">
+        Real-time data from NASA APIs — track the ISS, explore Mars, discover near-Earth asteroids and today's astronomy
+        picture.
+    </p>
+
+    <div class="mission-cards fade-up fade-up-3">
+
+        <a href="/apod" class="mission-card">
+            <div class="mission-icon">🌌</div>
+            <div class="mission-name">APOD</div>
+            <div class="mission-desc">Astronomy Picture of the Day — browse NASA's curated cosmic gallery by date.</div>
+        </a>
+
+        <a href="/mars" class="mission-card">
+            <div class="mission-icon">🚗</div>
+            <div class="mission-name">Mars Rovers</div>
+            <div class="mission-desc">Photos from Curiosity, Perseverance and more — browse by sol and camera.</div>
+        </a>
+
+        <a href="/iss" class="mission-card">
+            <div class="mission-icon">🛰️</div>
+            <div class="mission-name">ISS Tracker</div>
+            <div class="mission-desc">Live position of the International Space Station and current crew.</div>
+        </a>
+
+        <a href="/asteroids" class="mission-card">
+            <div class="mission-icon">☄️</div>
+            <div class="mission-name">Near-Earth Objects</div>
+            <div class="mission-desc">Asteroids approaching Earth this week — size, speed, and hazard assessment.</div>
+        </a>
+
+        <a href="/news" class="mission-card">
+            <div class="mission-icon">📡</div>
+            <div class="mission-name">Space News</div>
+            <div class="mission-desc">Latest missions, launches and discoveries from the space industry.</div>
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}

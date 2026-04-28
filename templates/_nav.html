@@ -1,0 +1,13 @@
+<!-- templates/_nav.html -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">SPACE EXPLORER</a>
+    <div class="nav-links">
+      <a href="/apod" {% if request.path == '/apod' %}class="active"{% endif %}>APOD</a>
+      <a href="/mars" {% if '/mars' in request.path %}class="active"{% endif %}>Mars</a>
+      <a href="/iss"  {% if request.path == '/iss'  %}class="active"{% endif %}>ISS</a>
+      <a href="/asteroids" {% if request.path == '/asteroids' %}class="active"{% endif %}>NEOs</a>
+      <a href="/news" {% if request.path == '/news' %}class="active"{% endif %}>News</a>
+    </div>
+  </div>
+</nav>

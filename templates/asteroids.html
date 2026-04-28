@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Mission Control{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+
+  <a href="/" class="back-link">Back to Mission Control</a>
+
+  <div class="page-header">
+    <div class="label">Planetary Defense</div>
+    <h1>Near-Earth <span>Objects</span></h1>
+    <p class="subtitle">
+      Asteroids and comets approaching Earth — {{ start_date }} to {{ end_date }}.
+      Data from NASA's CNEOS.
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid fade-up">
+    <div class="card">
+      <div class="card-label">Total Approaches</div>
+      <div class="card-value">{{ total }}</div>
+      <div class="card-unit">this week</div>
+    </div>
+    <div class="card">
+      <div class="card-label" style="color:var(--danger)">Potentially Hazardous</div>
+      <div class="card-value" style="color:{{ 'var(--danger)' if hazardous_count > 0 else 'var(--success)' }}">
+        {{ hazardous_count }}
+      </div>
+      <div class="card-unit">flagged objects</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Closest Approach</div>
+      {% if neos %}
+      {% set closest = neos[0] %}
+      <div class="card-value" style="font-size:18px;">
+        {{ "{:,.0f}".format(closest.close_approach_data[0].miss_distance.kilometers|float) }}
+      </div>
+      <div class="card-unit">km · {{ closest.name }}</div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-label">Showing</div>
+      <div class="card-value">{{ neos|length }}</div>
+      <div class="card-unit">sorted by proximity</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card fade-up fade-up-1" style="padding:0; overflow:hidden;">
+    <div style="padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+      <span style="font-family:var(--font-mono); font-size:15px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim);">
+        Approach Data
+      </span>
+      <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-faint);">
+        Sorted by miss distance ↑
+      </span>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Diameter (m)</th>
+            <th>Miss Distance (km)</th>
+            <th>Velocity (km/h)</th>
+            <th>Close Approach</th>
+            <th>Hazard</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for neo in neos %}
+          {% set approach = neo.close_approach_data[0] %}
+          {% set dmin = neo.estimated_diameter.meters.estimated_diameter_min %}
+          {% set dmax = neo.estimated_diameter.meters.estimated_diameter_max %}
+          {% set dist = approach.miss_distance.kilometers|float %}
+          {% set vel  = approach.relative_velocity.kilometers_per_hour|float %}
+          <tr>
+            <td class="name">{{ neo.name }}</td>
+            <td>
+              <span style="color:var(--text);">{{ "{:.0f}".format(dmin) }}–{{ "{:.0f}".format(dmax) }}</span>
+              <div class="risk-bar" style="width:120px;">
+                <div class="risk-fill {% if dmax > 500 %}high{% elif dmax > 100 %}medium{% endif %}"
+                  style="width: {{ [dmax / 10, 100] | min }}%"></div>
+              </div>
+            </td>
+            <td class="{% if dist < 1000000 %}danger-val{% else %}highlight{% endif %}">
+              {{ "{:,.0f}".format(dist) }}
+            </td>
+            <td>{{ "{:,.0f}".format(vel) }}</td>
+            <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim);">
+              {{ approach.close_approach_date }}
+            </td>
+            <td>
+              {% if neo.is_potentially_hazardous_asteroid %}
+                <span class="badge badge-danger">⚠ Hazardous</span>
+              {% else %}
+                <span class="badge badge-safe">Safe</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p style="margin-top:16px; font-family:var(--font-mono); font-size:11px; color:var(--text-faint); text-align:center;">
+    "Potentially Hazardous" is a NASA classification — none of these objects are predicted to impact Earth.
+  </p>
+
+</div>
+{% endblock %}

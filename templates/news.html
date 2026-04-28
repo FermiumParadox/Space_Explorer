@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Mission Control{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+
+  <a href="/" class="back-link">Back to Mission Control</a>
+
+  <div class="page-header">
+    <div class="label">Incoming Transmission</div>
+    <h1>Space <span>News</span></h1>
+    <p class="subtitle">Latest missions, launches and discoveries from across the industry.</p>
+  </div>
+
+  <div class="news-grid fade-up">
+    {% for article in articles %}
+    <a href="{{ article.url }}" class="news-card" target="_blank" rel="noopener">
+      {% if article.image_url %}
+      <img src="{{ article.image_url }}" alt="{{ article.title }}" loading="lazy"
+        onerror="this.style.display='none'">
+      {% endif %}
+      <div class="news-card-body">
+        <div class="news-source">{{ article.news_site }}</div>
+        <div class="news-title">{{ article.title }}</div>
+        <div class="news-date">
+          {{ article.published_at[:10] if article.published_at else '' }}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

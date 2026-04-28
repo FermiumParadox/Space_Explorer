@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}ISS Tracker{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+
+  <a href="/" class="back-link">Back to Mission Control</a>
+
+  <div class="page-header">
+    <div class="label">Live Tracking</div>
+    <h1>International <span>Space Station</span></h1>
+    <p class="subtitle">Real-time orbital position updated every 5 seconds.</p>
+  </div>
+
+  <!-- Status bar -->
+  <div style="display:flex; gap:20px; align-items:center; margin-bottom:24px;">
+    <span class="live-dot" id="status">Connecting</span>
+    <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-faint);">
+      Updated: <span id="last-update">—</span>
+    </span>
+  </div>
+
+  <!-- Coords -->
+  <div class="iss-coords" style="margin-bottom:24px;">
+    <div class="coord-item">
+      <div class="coord-label">Latitude</div>
+      <div class="coord-value" id="lat">—</div>
+    </div>
+    <div class="coord-item">
+      <div class="coord-label">Longitude</div>
+      <div class="coord-value" id="lon">—</div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div style="margin-bottom:32px;">
+    <div id="iss-map"></div>
+  </div>
+
+  <!-- Crew -->
+  <div>
+    <div class="card">
+      <div>
+        <div class="card-label">Aboard the ISS</div>
+        <div class="card-value" id="crew-count">—</div>
+      </div>
+      <div class="crew-grid" id="crew-grid"></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const map = L.map('iss-map').setView([0, 0], 2);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 10,
+  }).addTo(map);
+
+  let marker = null;
+
+  async function fetchISS() {
+    const res = await fetch('/api/iss');
+    const data = await res.json();
+
+    const lat = data.latitude;
+    const lon = data.longitude;
+
+    document.getElementById('lat').textContent = lat.toFixed(4) + '°';
+    document.getElementById('lon').textContent = lon.toFixed(4) + '°';
+
+    const now = new Date(data.timestamp * 1000);
+    document.getElementById('last-update').textContent = now.toLocaleTimeString();
+
+    if (!marker) {
+      marker = L.marker([lat, lon]).addTo(map);
+      map.setView([lat, lon], 2);
+    } else {
+      marker.setLatLng([lat, lon]);
+    }
+
+    document.getElementById('status').textContent = 'Live';
+  }
+
+  fetchISS();
+  setInterval(fetchISS, 5000);
+</script>
+{% endblock %}
